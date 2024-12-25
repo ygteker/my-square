@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import dbConnect from "@/lib/mongodb";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
 import User from "@/models//User";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
@@ -8,14 +9,24 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await dbConnect();
+  let db = null;
+  if (!db) {
+    db = await open({
+      filename: "userdatabase.db",
+      driver: sqlite3.Database
+    })
+  }
+
   const { email, password } = req.body;
 
+  console.log(email, password);
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
-  const user = await User.findOne({ email });
+  const sql = "SELECT * FROM users WHERE email = ?";
+  const user = await db.get(sql, email);
+  console.log('test')
   if (!user) {
     return res.status(400).json({ message: "Invalid credentials" });
   }
@@ -25,7 +36,7 @@ export default async function handler(
     return res.status(400).json({ message: "Invalid credentials" });
   }
 
-  const token = jwt.sign({ userId: user.email }, process.env.JWT_SECRET as string, {
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, {
     expiresIn: '1m',
   })
   console.log("Login successful", token);

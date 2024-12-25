@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Cookies from 'js-cookie';
 
@@ -9,6 +9,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const token = Cookies.get('token');
+    console.log("TOKEN", token)
 
     if (!token) {
       router.replace('/login');
@@ -16,9 +17,9 @@ const Dashboard: React.FC = () => {
 
     const validateToken = async () => {
       try {
-        const res = await fetch('/api/validate', {
+        const res = await fetch('/api/auth/validate', {
           headers: {
-            Authorization: `Baerer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         })
 

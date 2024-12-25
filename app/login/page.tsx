@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 
+import { useRouter } from 'next/navigation';
 import AuthForm from "@/components/AuthForm";
 import Link from "next/link";
 
 const Login: React.FC = () => {
+  const router = useRouter();
   const [isSuccessful, setIsSuccessful] = useState(false);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -18,6 +20,9 @@ const Login: React.FC = () => {
     });
 
     const result = await res.json();
+    const { token } = result;
+    document.cookie = `token=${token}; path=/`;
+    router.push('/dashboard');
     setMessage(result.message);
 
     if (res.status === 200) {
