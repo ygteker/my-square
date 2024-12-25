@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import sqlite3 from "sqlite3";
 import { open } from "sqlite";
-import User from "@/models//User";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 
@@ -19,14 +18,12 @@ export default async function handler(
 
   const { email, password } = req.body;
 
-  console.log(email, password);
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
   const sql = "SELECT * FROM users WHERE email = ?";
   const user = await db.get(sql, email);
-  console.log('test')
   if (!user) {
     return res.status(400).json({ message: "Invalid credentials" });
   }
